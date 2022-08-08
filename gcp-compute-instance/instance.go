@@ -2,7 +2,6 @@ package instance
 
 import (
 	"encoding/base64"
-	"fmt"
 	"log"
 
 	"google.golang.org/api/compute/v1"
@@ -22,22 +21,22 @@ func (i *Instance) GetStatus() string {
 }
 
 func (i *Instance) Start() error {
-	resp, err := i.ComputeService.Instances.Start(i.ProjectId, i.Zone, i.Name).Do()
+	_, err := i.ComputeService.Instances.Start(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%#v\n", resp)
+	log.Println("Starting server")
 	return nil
 }
 
 func (i *Instance) Stop() error {
-	resp, err := i.ComputeService.Instances.Stop(i.ProjectId, i.Zone, i.Name).Do()
+	_, err := i.ComputeService.Instances.Stop(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%#v\n", resp)
+	log.Println("Stopping server")
 	return nil
 }
 
