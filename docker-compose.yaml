@@ -2,10 +2,8 @@ version: '3'
 
 services:
   ### APP ###
-  mc-server-control-discord-bot:
-    build: .
-    container_name: mc-server-control-discord-bot
-    restart: always
-    environment:
-      - GCP_CREDS_JSON_BASE64=${GCP_CREDS_JSON_BASE64}
-      - BOT_TOKEN=${BOT_TOKEN}
+  build: .
+  container_name: McServerControlDiscordBot
+  environment:
+    - GCP_CREDS_JSON_BASE64=${GCP_CREDS_JSON_BASE64}
+    - BOT_TOKEN=${BOT_TOKEN}
