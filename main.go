@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,8 +19,10 @@ var (
 )
 
 func main() {
+	logger := log.Default()
+
 	it := instance.New(projectId, instanceZone, instanceName, credFileBase64)
-	bt := bot.New(it, botToken)
+	bt := bot.New(logger, it, botToken)
 	dg := bt.Init()
 
 	sc := make(chan os.Signal, 1)
