@@ -29,7 +29,7 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		if status == "RUNNING" {
-			s.ChannelMessageSend(m.ChannelID, "Server is already running    chupapija")
+			s.ChannelMessageSend(m.ChannelID, "Server is already running")
 			return
 		}
 		if status == "STOPPING" {

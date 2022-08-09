@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,6 +19,8 @@ var (
 )
 
 func main() {
+	log.SetFlags(log.Ltime)
+
 	it := instance.New(projectId, instanceZone, instanceName, credFileBase64)
 	bt := bot.New(it, botToken)
 	dg := bt.Init()
