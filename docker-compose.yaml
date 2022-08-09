@@ -10,3 +10,6 @@ services:
       - GCP_CREDS_JSON_BASE64=${GCP_CREDS_JSON_BASE64}
       - BOT_TOKEN=${BOT_TOKEN}
       - MC_SERVER_IP=${GCP_MC_SV_IP}
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
