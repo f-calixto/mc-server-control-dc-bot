@@ -20,6 +20,7 @@ var (
 
 func main() {
 	logger := log.Default()
+	logger.SetFlags(log.LstdFlags)
 
 	it := instance.New(projectId, instanceZone, instanceName, credFileBase64)
 	bt := bot.New(logger, it, botToken)
