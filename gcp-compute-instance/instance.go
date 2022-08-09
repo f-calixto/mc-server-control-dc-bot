@@ -28,7 +28,6 @@ func (i *Instance) Start() error {
 		return err
 	}
 
-	log.Println("Starting server")
 	return nil
 }
 
@@ -40,7 +39,6 @@ func (i *Instance) Stop() error {
 		return err
 	}
 
-	log.Println("Stopping server")
 	return nil
 }
 

@@ -58,35 +58,39 @@ func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
 			b.logger.Fatalln("error getting server player count")
 		}
 
-		if n == 0 {
-			var a int
-			b.logger.Println("started 30 min counter")
-			for i := 0; i < 14; i++ {
-				time.Sleep(2 * time.Minute)
-				a, err = ssc.GetPlayerCount()
-				if err != nil {
-					b.logger.Fatalln("error getting server player count")
-				}
-				if a > 0 {
-					break
-				}
-			}
-			if a > 0 { // means that interval has been interrupted by activity
-				b.logger.Println("30 minute interval interrupted")
-				continue
-			}
+		if n > 0 {
+			continue
+		}
+
+		var a int
+		b.logger.Println("started 30 min counter")
+		for i := 0; i < 14; i++ {
 			time.Sleep(2 * time.Minute)
-			c, err := ssc.GetPlayerCount()
+			a, err = ssc.GetPlayerCount()
 			if err != nil {
 				b.logger.Fatalln("error getting server player count")
 			}
-			if c == 0 {
-				b.Instance.Stop()
-				b.logger.Println("Stopping server")
-				s.ChannelMessageSend(channelId, "30 minutes of inactivity - Stopping server...")
-				s.ChannelMessageSend(channelId, "Use `start-server` to spin up the server again")
-				return
+			if a > 0 {
+				break
 			}
+		}
+		if a > 0 { // means that interval has been interrupted by activity
+			b.logger.Println("30 minute interval interrupted")
+			continue
+		}
+
+		time.Sleep(2 * time.Minute)
+		c, err := ssc.GetPlayerCount()
+		if err != nil {
+			b.logger.Fatalln("error getting server player count")
+		}
+
+		if c == 0 {
+			b.Instance.Stop()
+			b.logger.Println("Stopping server")
+			s.ChannelMessageSend(channelId, "30 minutes of inactivity - Stopping server...")
+			s.ChannelMessageSend(channelId, "Use `start-server` to spin up the server again")
+			return
 		}
 	}
 }
