@@ -17,6 +17,8 @@ type Bot struct {
 }
 
 func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	log.SetFlags(log.Ltime)
+
 	// Ignore all messages created by the bot itself
 	if m.Author.ID == s.State.User.ID {
 		return
@@ -46,6 +48,8 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
+	log.SetFlags(log.Ltime)
+
 	for {
 		time.Sleep(2 * time.Minute)
 		n, err := ssc.GetPlayerCount()
@@ -86,6 +90,8 @@ func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
 }
 
 func (b *Bot) Init() *discordgo.Session {
+	log.SetFlags(log.Ltime)
+
 	dg, err := discordgo.New("Bot " + b.Token)
 	if err != nil {
 		log.Fatalln("error creating Discord session,", err)

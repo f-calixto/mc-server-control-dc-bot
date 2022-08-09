@@ -21,6 +21,8 @@ func (i *Instance) GetStatus() string {
 }
 
 func (i *Instance) Start() error {
+	log.SetFlags(log.Ltime)
+
 	_, err := i.ComputeService.Instances.Start(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
@@ -31,6 +33,8 @@ func (i *Instance) Start() error {
 }
 
 func (i *Instance) Stop() error {
+	log.SetFlags(log.Ltime)
+
 	_, err := i.ComputeService.Instances.Stop(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
@@ -41,6 +45,8 @@ func (i *Instance) Stop() error {
 }
 
 func New(pjId, zone, name, credFileb64 string) *Instance {
+	log.SetFlags(log.Ltime)
+
 	f, err := base64.StdEncoding.DecodeString(credFileb64)
 	if err != nil {
 		log.Fatal(err)
