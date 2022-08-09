@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -106,7 +105,7 @@ func (b *Bot) Init() *discordgo.Session {
 		go b.WaitForInactivity(dg, defaultChannelId)
 	}
 
-	fmt.Println("Bot is now running. Press CTRL-C to exit.")
+	log.Println("Bot is now running. Press CTRL-C to exit.")
 	return dg
 }
 
