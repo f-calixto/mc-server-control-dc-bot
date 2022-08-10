@@ -2,6 +2,7 @@ package bot
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -12,6 +13,7 @@ import (
 const defaultChannelId = "1005923849684123678" // start-server channel id
 
 type Bot struct {
+	mu       sync.Mutex
 	logger   *log.Logger
 	Token    string
 	Instance *instance.Instance
@@ -24,6 +26,7 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "start-server" {
+		b.mu.Lock()
 		status := b.Instance.GetStatus()
 		if status == "STAGING" {
 			b.logger.Println("Start attempt while staging")
@@ -46,6 +49,7 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		b.logger.Println("Starting server")
 		s.ChannelMessageSend(m.ChannelID, "Server starting... This could take a few seconds")
+		b.mu.Unlock()
 		b.WaitForInactivity(s, m.ChannelID)
 	}
 }
