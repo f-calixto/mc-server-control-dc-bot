@@ -21,8 +21,6 @@ func (i *Instance) GetStatus() string {
 }
 
 func (i *Instance) Start() error {
-	log.SetFlags(log.Ltime)
-
 	_, err := i.ComputeService.Instances.Start(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
