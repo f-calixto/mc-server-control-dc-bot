@@ -31,16 +31,19 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if status == "STAGING" {
 			b.logger.Println("Start attempt while staging")
 			s.ChannelMessageSend(m.ChannelID, "Wait... Server is starting")
+			b.mu.Unlock()
 			return
 		}
 		if status == "RUNNING" {
 			b.logger.Println("Start attempt while running")
 			s.ChannelMessageSend(m.ChannelID, "Server is already running")
+			b.mu.Unlock()
 			return
 		}
 		if status == "STOPPING" {
 			b.logger.Println("Start attempt while stopping")
 			s.ChannelMessageSend(m.ChannelID, "Server is stopping, wait a moment before starting again")
+			b.mu.Unlock()
 			return
 		}
 		err := b.Instance.Start()
