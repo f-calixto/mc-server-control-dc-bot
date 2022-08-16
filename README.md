@@ -9,7 +9,7 @@ The server is running on a GCP compute engine instance, in order to save money, 
 
 
 #### After 30 minutes of inactivity
-![30 minutes of inactivity](https://admin.francisco-calixto.com/static/shut_down.png)
+![after 30 minutes of inactivity](https://admin.francisco-calixto.com/static/shut_down.png)
 
 ## The main logic followed by the bot
 
