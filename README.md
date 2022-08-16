@@ -13,7 +13,7 @@ The minecraft server runs in the virtual machine as a service, so whenever the m
 #### After 30 minutes of inactivity
 ![30 minutes of inactivity](https://admin.francisco-calixto.com/static/shut_down_server.png)
 
-## The main logic followed of the bot
+## The main logic of the bot
 
 ![enter image description here](https://admin.francisco-calixto.com/static/server_bot_discord_logic.svg)
 
