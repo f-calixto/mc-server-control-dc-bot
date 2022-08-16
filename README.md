@@ -17,5 +17,5 @@ The minecraft server runs in the virtual machine as a service, so whenever the m
 
 ![enter image description here](https://admin.francisco-calixto.com/static/server_bot_discord_logic.svg)
 
-The machine can be turned on and down easily using the [Compute Engine API](https://pkg.go.dev/google.golang.org/api/compute/v1) and the server player count is retrieved from https://mcapi.us/. 
+The machine can be turned on and off easily using the [Compute Engine API](https://pkg.go.dev/google.golang.org/api/compute/v1) and the server player count is retrieved from https://mcapi.us/. 
 The reason for waiting in intervals of 2 minutes before checking the amount of players connected is because the API maintainers specifically tell us to make at most one request per minute as the data is stored server side, and as I didn't really need data every second I decided to call every 2 minutes and prevent any kind of issue.
