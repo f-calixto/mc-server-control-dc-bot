@@ -1,6 +1,6 @@
 # A discord bot to control a Minecraft server
 
-The server is running on a GCP compute engine instance, in order to save money, I created this bot that shuts the machine down whenever the server remains inactive for 30 minutes. If someone wants to play, the person simply needs to write "start-server" on the discord channel where the bot is listening. 
+The server is running on a GCP compute engine instance, in order to save money, I created this bot that shuts the machine down whenever the server remains inactive for 30 minutes. If someone wants to play, the person simply needs to write "start-server" on the discord channel where the bot is listening.
 
 ## Example
 
