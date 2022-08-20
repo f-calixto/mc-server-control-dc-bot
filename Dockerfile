@@ -2,7 +2,7 @@ FROM arm64v8/golang:latest AS build
 
 COPY . .
 
-RUN go mod install
+RUN go mod download
 
 RUN make compile-arm64
 
