@@ -5,8 +5,6 @@ WORKDIR /build
 
 COPY . .
 
-RUN go mod download
-
 RUN make compile-arm64
 
 #####################################
