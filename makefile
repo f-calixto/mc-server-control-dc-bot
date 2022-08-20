@@ -1,2 +1,2 @@
 compile-arm64:
-	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ./bin/main
+	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build --ldflags="-s -w" -o ./bin/main
