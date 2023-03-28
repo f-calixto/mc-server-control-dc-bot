@@ -69,7 +69,7 @@ func (b *Bot) waitForInactivity(s *discordgo.Session, channelId string) {
 		minutesInactive, count int
 	)
 
-	ticker := time.NewTicker(2 * time.Minute)
+	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 
 	// every 2 minutes:
