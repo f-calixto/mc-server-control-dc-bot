@@ -55,7 +55,7 @@ func (b *Bot) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		b.logger.Println("Starting server")
 		s.ChannelMessageSend(m.ChannelID, "Server starting... This could take a few seconds")
-		b.waitForInactivity(s, m.ChannelID)
+		go b.waitForInactivity(s, m.ChannelID)
 	}
 }
 
