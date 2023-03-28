@@ -27,11 +27,11 @@ func main() {
 
 	playerCountClient := playerCount.NewClient(minecraftServerIp)
 
-	instaceController := instance.New(projectId, instanceZone, instanceName, credFileBase64)
+	instanceController := instance.New(projectId, instanceZone, instanceName, credFileBase64)
 
-	bt := bot.New(*logger, instaceController, playerCountClient)
+	b := bot.New(*logger, instanceController, playerCountClient)
 
-	dgSession := bt.Init(discordBotToken, discordChannelId)
+	dgSession := b.Init(discordBotToken, discordChannelId)
 	defer dgSession.Close()
 
 	sc := make(chan os.Signal, 1)
