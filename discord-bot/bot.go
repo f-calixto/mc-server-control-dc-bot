@@ -31,7 +31,7 @@ func (b *Bot) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == startServerMessage {
-		b.mu.Lock()
+		b.mu.Lock() // MOVE THIS DOWN? after switch statement
 		defer b.mu.Unlock()
 
 		switch b.instanceController.GetStatus() {
@@ -50,49 +50,49 @@ func (b *Bot) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		if err := b.instanceController.Start(); err != nil {
-			b.logger.Fatal(err)
+			b.logger.Fatalln(err)
 		}
 
 		b.logger.Println("Starting server")
 		s.ChannelMessageSend(m.ChannelID, "Server starting... This could take a few seconds")
-		b.WaitForInactivity(s, m.ChannelID)
+		b.waitForInactivity(s, m.ChannelID)
 	}
 }
 
 // waits 30 minutes and checks playerCount every 2 minutes.
-// if the
-func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
+// if the timer is interrupted is starts again.
+// if the 30 minutes end, the server stops
+func (b *Bot) waitForInactivity(s *discordgo.Session, channelId string) {
 	for {
+		var c int
+		var err error
+
 		time.Sleep(2 * time.Minute)
-		n, err := b.playerCountClient.Get()
-		if err != nil {
+		if c, err = b.playerCountClient.Get(); err != nil {
 			b.logger.Fatalln("error getting server player count")
 		}
 
-		if n > 0 {
+		if c > 0 {
 			continue
 		}
 
-		var a int
 		b.logger.Println("started 30 min counter")
 		for i := 0; i < 14; i++ {
 			time.Sleep(2 * time.Minute)
-			a, err = b.playerCountClient.Get()
-			if err != nil {
+			if c, err = b.playerCountClient.Get(); err != nil {
 				b.logger.Fatalln("error getting server player count")
 			}
-			if a > 0 {
+			if c > 0 {
 				break
 			}
 		}
-		if a > 0 { // means that interval has been interrupted by activity
+		if c > 0 { // means that interval has been interrupted by activity
 			b.logger.Println("30 minute interval interrupted")
 			continue
 		}
 
 		time.Sleep(2 * time.Minute)
-		c, err := b.playerCountClient.Get()
-		if err != nil {
+		if c, err = b.playerCountClient.Get(); err != nil {
 			b.logger.Fatalln("error getting server player count")
 		}
 
@@ -131,7 +131,7 @@ func (b *Bot) Init(dcBotTkn, dcChanId string) *discordgo.Session {
 
 	// case: server started before bot started listening
 	if b.instanceController.GetStatus() == statusRunning {
-		go b.WaitForInactivity(dgSession, dcChanId)
+		go b.waitForInactivity(dgSession, dcChanId)
 	}
 
 	b.logger.Println("Bot is now running.")
