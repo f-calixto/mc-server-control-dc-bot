@@ -8,19 +8,25 @@ import (
 	"google.golang.org/api/option"
 )
 
-type Instance struct {
+type InstanceController interface {
+	Start() error
+	Stop() error
+	GetStatus() string
+}
+
+type instance struct {
 	ProjectId      string
 	Zone           string
 	Name           string
 	ComputeService *compute.Service
 }
 
-func (i *Instance) GetStatus() string {
+func (i *instance) GetStatus() string {
 	c, _ := i.ComputeService.Instances.Get(i.ProjectId, i.Zone, i.Name).Do()
 	return c.Status
 }
 
-func (i *Instance) Start() error {
+func (i *instance) Start() error {
 	_, err := i.ComputeService.Instances.Start(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
@@ -29,7 +35,7 @@ func (i *Instance) Start() error {
 	return nil
 }
 
-func (i *Instance) Stop() error {
+func (i *instance) Stop() error {
 	_, err := i.ComputeService.Instances.Stop(i.ProjectId, i.Zone, i.Name).Do()
 	if err != nil {
 		return err
@@ -38,8 +44,7 @@ func (i *Instance) Stop() error {
 	return nil
 }
 
-func New(pjId, zone, name, credFileb64 string) *Instance {
-
+func New(pjId, zone, name, credFileb64 string) InstanceController {
 	f, err := base64.StdEncoding.DecodeString(credFileb64)
 	if err != nil {
 		log.Fatal(err)
@@ -50,7 +55,7 @@ func New(pjId, zone, name, credFileb64 string) *Instance {
 		log.Fatal(err)
 	}
 
-	return &Instance{
+	return &instance{
 		ProjectId:      pjId,
 		Zone:           zone,
 		Name:           name,

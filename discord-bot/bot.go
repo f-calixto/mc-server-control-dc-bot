@@ -7,60 +7,64 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	instance "github.com/coding-kiko/mc-server-control-dc-bot/gcp-compute-instance"
-	ssc "github.com/coding-kiko/mc-server-control-dc-bot/sv-status-client"
+	"github.com/coding-kiko/mc-server-control-dc-bot/playerCount"
 )
 
-const defaultChannelId = "1005923849684123678" // start-server channel id
+const (
+	statusStaging      = "STAGING"
+	statusRunning      = "RUNNING"
+	statusStopping     = "STOPPING"
+	startServerMessage = "start-server"
+)
 
 type Bot struct {
-	mu       sync.Mutex
-	logger   *log.Logger
-	Token    string
-	Instance *instance.Instance
+	mu                 sync.Mutex
+	logger             log.Logger
+	instanceController instance.InstanceController
+	playerCountClient  playerCount.Client
 }
 
-func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func (b *Bot) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	if m.Content == "start-server" {
+	if m.Content == startServerMessage {
 		b.mu.Lock()
-		status := b.Instance.GetStatus()
-		if status == "STAGING" {
+		defer b.mu.Unlock()
+
+		switch b.instanceController.GetStatus() {
+		case statusStaging:
 			b.logger.Println("Start attempt while staging")
 			s.ChannelMessageSend(m.ChannelID, "Wait... Server is starting")
-			b.mu.Unlock()
 			return
-		}
-		if status == "RUNNING" {
+		case statusRunning:
 			b.logger.Println("Start attempt while running")
 			s.ChannelMessageSend(m.ChannelID, "Server is already running")
-			b.mu.Unlock()
 			return
-		}
-		if status == "STOPPING" {
+		case statusStopping:
 			b.logger.Println("Start attempt while stopping")
 			s.ChannelMessageSend(m.ChannelID, "Server is stopping, wait a moment before starting again")
-			b.mu.Unlock()
 			return
 		}
-		err := b.Instance.Start()
-		if err != nil {
+
+		if err := b.instanceController.Start(); err != nil {
 			b.logger.Fatal(err)
 		}
+
 		b.logger.Println("Starting server")
 		s.ChannelMessageSend(m.ChannelID, "Server starting... This could take a few seconds")
-		b.mu.Unlock()
 		b.WaitForInactivity(s, m.ChannelID)
 	}
 }
 
+// waits 30 minutes and checks playerCount every 2 minutes.
+// if the
 func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
 	for {
 		time.Sleep(2 * time.Minute)
-		n, err := ssc.GetPlayerCount()
+		n, err := b.playerCountClient.Get()
 		if err != nil {
 			b.logger.Fatalln("error getting server player count")
 		}
@@ -73,7 +77,7 @@ func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
 		b.logger.Println("started 30 min counter")
 		for i := 0; i < 14; i++ {
 			time.Sleep(2 * time.Minute)
-			a, err = ssc.GetPlayerCount()
+			a, err = b.playerCountClient.Get()
 			if err != nil {
 				b.logger.Fatalln("error getting server player count")
 			}
@@ -87,13 +91,13 @@ func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
 		}
 
 		time.Sleep(2 * time.Minute)
-		c, err := ssc.GetPlayerCount()
+		c, err := b.playerCountClient.Get()
 		if err != nil {
 			b.logger.Fatalln("error getting server player count")
 		}
 
 		if c == 0 {
-			b.Instance.Stop()
+			b.instanceController.Stop()
 			b.logger.Println("Stopping server")
 			s.ChannelMessageSend(channelId, "30 minutes of inactivity - Stopping server...")
 			s.ChannelMessageSend(channelId, "Use `start-server` to spin up the server again")
@@ -102,34 +106,34 @@ func (b *Bot) WaitForInactivity(s *discordgo.Session, channelId string) {
 	}
 }
 
-func (b *Bot) Init() *discordgo.Session {
-	dg, err := discordgo.New("Bot " + b.Token)
+func New(logger log.Logger, it instance.InstanceController, pcc playerCount.Client) *Bot {
+	return &Bot{
+		logger:             logger,
+		instanceController: it,
+		playerCountClient:  pcc,
+	}
+}
+
+func (b *Bot) Init(dcBotTkn, dcChanId string) *discordgo.Session {
+	dgSession, err := discordgo.New("Bot " + dcBotTkn)
 	if err != nil {
-		b.logger.Fatalln("error creating Discord session,", err)
+		b.logger.Fatalln("error creating Discordgo session,", err)
 	}
 
-	dg.AddHandler(b.messageCreate)
+	dgSession.AddHandler(b.onMessage)
 
 	// we only care about receiving message events.
-	dg.Identify.Intents = discordgo.IntentsGuildMessages
+	dgSession.Identify.Intents = discordgo.IntentsGuildMessages
 
-	err = dg.Open()
-	if err != nil {
+	if err = dgSession.Open(); err != nil {
 		b.logger.Fatalln("error opening connection,", err)
 	}
 
-	if b.Instance.GetStatus() == "RUNNING" { // case: server started before bot started listening
-		go b.WaitForInactivity(dg, defaultChannelId)
+	// case: server started before bot started listening
+	if b.instanceController.GetStatus() == statusRunning {
+		go b.WaitForInactivity(dgSession, dcChanId)
 	}
 
 	b.logger.Println("Bot is now running.")
-	return dg
-}
-
-func New(logger *log.Logger, it *instance.Instance, tk string) *Bot {
-	return &Bot{
-		logger:   logger,
-		Token:    tk,
-		Instance: it,
-	}
+	return dgSession
 }

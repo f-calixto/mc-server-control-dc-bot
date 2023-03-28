@@ -8,7 +8,11 @@ services:
     restart: always
     environment:
       - GCP_CREDS_JSON_BASE64=${GCP_CREDS_JSON_BASE64}
-      - BOT_TOKEN=${BOT_TOKEN}
+      - PROJECT_ID=minecraft-server-357716
+      - INSTANCE_ZONE=southamerica-east1-a
+      - INSTANCE_NAME=minecraft-server
+      - DC_BOT_TOKEN=${DC_BOT_TOKEN}
+      - DC_CHANNEL_ID=1005923849684123678
       - MC_SERVER_IP=${GCP_MC_SV_IP}
     volumes:
       - "/etc/timezone:/etc/timezone:ro"

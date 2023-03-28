@@ -5,11 +5,12 @@ WORKDIR /build
 
 COPY . .
 
+RUN go mod download
+
 RUN make compile-arm64
 
 #####################################
 
-# RUN
 FROM arm64v8/alpine:3.14
 
 WORKDIR /app
