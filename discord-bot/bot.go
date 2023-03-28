@@ -18,7 +18,7 @@ const (
 )
 
 type Bot struct {
-	mu                 sync.Mutex
+	mu                 *sync.Mutex
 	logger             log.Logger
 	instanceController instance.InstanceController
 	playerCountClient  playerCount.Client
