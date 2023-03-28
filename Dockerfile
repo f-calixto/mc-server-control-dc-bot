@@ -1,13 +1,13 @@
 # BUILD
-FROM arm64v8/golang:latest AS build
+# FROM arm64v8/golang:latest AS build
 
-WORKDIR /build
+# WORKDIR /build
 
-COPY . .
+# COPY . .
 
-RUN go mod download
+# RUN go mod download
 
-RUN make compile-arm64
+# RUN make compile-arm64
 
 #####################################
 
@@ -15,6 +15,7 @@ FROM arm64v8/alpine:3.14
 
 WORKDIR /app
 
-COPY --from=build /build/bin/main .
+COPY ./bin/main .
+# COPY --from=build /build/bin/main .
 
 ENTRYPOINT ["/app/main"]

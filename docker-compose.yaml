@@ -8,8 +8,8 @@ services:
     restart: always
     environment:
       - GCP_CREDS_JSON_BASE64=${GCP_CREDS_JSON_BASE64}
-      - PROJECT_ID=minecraft-server-357716
-      - INSTANCE_ZONE=southamerica-east1-a
+      - PROJECT_ID=t-diagram-381919
+      - INSTANCE_ZONE=southamerica-east1-b
       - INSTANCE_NAME=minecraft-server
       - DC_BOT_TOKEN=${DC_BOT_TOKEN}
       - DC_CHANNEL_ID=1005923849684123678
