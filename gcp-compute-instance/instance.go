@@ -50,7 +50,7 @@ func New(pjId, zone, name, credFileb64 string) InstanceController {
 		log.Fatal(err)
 	}
 
-	srv, err := compute.NewService(nil, option.WithCredentialsJSON(f))
+	svc, err := compute.NewService(nil, option.WithCredentialsJSON(f))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,6 +59,6 @@ func New(pjId, zone, name, credFileb64 string) InstanceController {
 		ProjectId:      pjId,
 		Zone:           zone,
 		Name:           name,
-		ComputeService: srv,
+		ComputeService: svc,
 	}
 }

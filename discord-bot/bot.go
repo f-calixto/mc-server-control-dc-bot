@@ -31,7 +31,7 @@ func (b *Bot) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == startServerMessage {
-		b.mu.Lock() // MOVE THIS DOWN? after switch statement
+		b.mu.Lock()
 		defer b.mu.Unlock()
 
 		switch b.instanceController.GetStatus() {
@@ -59,49 +59,39 @@ func (b *Bot) onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-// waits 30 minutes and checks playerCount every 2 minutes.
-// if the timer is interrupted is starts again.
-// if the 30 minutes end, the server stops
+// Waits for 30 minutes of server inactivity before stopping the server instance.
+// It uses a ticker to check the player count every 2 minutes, and if no one is playing,
+// it increments a minutesInactive by 2. If the counter reaches 30, the server is stopped.
+// If anyone starts playing before the 30-minute threshold, the counter is reset.
 func (b *Bot) waitForInactivity(s *discordgo.Session, channelId string) {
-	for {
-		var c int
-		var err error
+	var (
+		err                    error
+		minutesInactive, count int
+	)
 
-		time.Sleep(2 * time.Minute)
-		if c, err = b.playerCountClient.Get(); err != nil {
-			b.logger.Fatalln("error getting server player count")
-		}
+	ticker := time.NewTicker(2 * time.Minute)
+	defer ticker.Stop()
 
-		if c > 0 {
-			continue
-		}
-
-		b.logger.Println("started 30 min counter")
-		for i := 0; i < 14; i++ {
-			time.Sleep(2 * time.Minute)
-			if c, err = b.playerCountClient.Get(); err != nil {
-				b.logger.Fatalln("error getting server player count")
-			}
-			if c > 0 {
-				break
-			}
-		}
-		if c > 0 { // means that interval has been interrupted by activity
-			b.logger.Println("30 minute interval interrupted")
-			continue
-		}
-
-		time.Sleep(2 * time.Minute)
-		if c, err = b.playerCountClient.Get(); err != nil {
-			b.logger.Fatalln("error getting server player count")
-		}
-
-		if c == 0 {
+	// every 2 minutes:
+	for range ticker.C {
+		if minutesInactive == 30 {
 			b.instanceController.Stop()
 			b.logger.Println("Stopping server")
 			s.ChannelMessageSend(channelId, "30 minutes of inactivity - Stopping server...")
 			s.ChannelMessageSend(channelId, "Use `start-server` to spin up the server again")
 			return
+		}
+
+		if count, err = b.playerCountClient.Get(); err != nil {
+			b.logger.Fatalln("error getting server player count")
+		}
+
+		switch count {
+		case 0:
+			minutesInactive += 2
+			b.logger.Println("No one is playing - minutes inactive:", minutesInactive)
+		default:
+			minutesInactive = 0
 		}
 	}
 }

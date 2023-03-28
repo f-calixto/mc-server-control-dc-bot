@@ -28,6 +28,7 @@ func (pc *client) Get() (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer r.Body.Close()
 
 	err = json.NewDecoder(r.Body).Decode(&resp)
 	if err != nil {
