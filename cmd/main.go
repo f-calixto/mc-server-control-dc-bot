@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	bot "github.com/coding-kiko/mc-server-control-dc-bot/internal/discord-bot"
+	bot "github.com/coding-kiko/mc-server-control-dc-bot/internal/bot"
 	instance "github.com/coding-kiko/mc-server-control-dc-bot/internal/gcp-compute-instance"
 	"github.com/coding-kiko/mc-server-control-dc-bot/internal/playerCount"
 )
